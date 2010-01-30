@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 
 @SuppressWarnings("serial")
@@ -52,38 +53,47 @@ public class ZephyrServiceServlet extends HttpServlet {
 		}
 		response.setHeader(RESULT, result);
 		ServletOutputStream outputStream = response.getOutputStream();
-		outputStream.write(result.getBytes());
+		if (result != null) outputStream.write(result.getBytes());
 		response.flushBuffer();
 
 	}
 
 	private String getData(String id, String dataType) {
-		KeyFactory.crea
+		String key = getKey(id, dataType);
         PersistenceManager pm = PMF.get().getPersistenceManager();
+        DataSet data = null;
         try {
-            pm.makePersistent(greeting);
+            data = (DataSet) pm.getObjectById(DataSet.class, key);
         } finally {
             pm.close();
         }
-
+        return data.getData();
 	}
 
-	private void storeData(String id, String dataType, String data2) {
-		// TODO Auto-generated method stub
-		
+	private void storeData(String id, String dataType, String data) {
+		String key = getKey(id, dataType);
+		PersistenceManager pm = PMF.get().getPersistenceManager();
+		DataSet dataset = new DataSet(id, dataType, data);
+		dataset.setKey(key);
+		DataSet result = pm.makePersistent(dataset);
+		System.out.println(result);
 	}
 
 	private void deleteData(String id, String dataType) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	private void storeData(HttpServletRequest request) {
-		// TODO Auto-generated method stub
-		
+		String key = getKey(id, dataType);
+		PersistenceManager pm = PMF.get().getPersistenceManager();
+		DataSet object = pm.getObjectById(DataSet.class, key);
+		pm.deletePersistent(object);
 	}
 
 	private String generateID() {
 		return UUID.randomUUID().toString();
 	}
+
+	private String getKey(String id, String dataType) {
+		//Key key = KeyFactory.createKey(DataSet.class.getSimpleName(), id + dataType);
+		String key = id + dataType;
+		return key;
+	}
+
 }

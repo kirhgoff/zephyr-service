@@ -1,18 +1,18 @@
 package com.kirhgoff.zephyr;
 
-import javax.jdo.annotations.Extension;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
+import com.google.appengine.api.datastore.Key;
+
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
 public class DataSet {
     @PrimaryKey
     @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
-    @Extension(vendorName="datanucleus", key="gae.encoded-pk", value="true")
-    private String encodedKey;
+    private String key;
 
     @Persistent
 	private String id;
@@ -52,11 +52,20 @@ public class DataSet {
 		this.data = data;
 	}
 
-	public void setEncodedKey(String encodedKey) {
-		this.encodedKey = encodedKey;
+	public void setKey(String key) {
+		this.key = key;
 	}
 
-	public String getEncodedKey() {
-		return encodedKey;
+	public String getKey() {
+		return key;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder ();
+		sb.append ("id=" + id).append(", ");
+		sb.append ("dataType=" + dataType).append(", ");
+		sb.append ("data=" + data);
+		return sb.toString();
 	}
 }
