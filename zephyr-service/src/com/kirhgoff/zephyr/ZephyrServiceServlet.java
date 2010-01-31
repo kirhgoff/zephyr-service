@@ -29,7 +29,7 @@ public class ZephyrServiceServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		doPost (request, response);
+		response.getOutputStream().println ("Go away, you are not welcomed here");
 	}
 	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
