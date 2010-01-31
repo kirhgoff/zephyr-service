@@ -1,20 +1,19 @@
 package com.kirhgoff.zephyr;
 import java.io.IOException;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 import javax.jdo.PersistenceManager;
+import javax.jdo.Query;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
-
 @SuppressWarnings("serial")
 public class ZephyrServiceServlet extends HttpServlet {
-
+	private static final Logger log = Logger.getLogger(ZephyrServiceServlet.class.getCanonicalName());
 	private static final String RESULT = "result";
 	
 	private static final String GET_DATA = "getData";
@@ -26,7 +25,13 @@ public class ZephyrServiceServlet extends HttpServlet {
 	private static final String DATA_TYPE = "dataType";
 	private static final String ID = "id";
 	private static final String METHOD = "method";
-
+	
+	@Override
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		doPost (request, response);
+	}
+	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		String result = null;
@@ -61,15 +66,27 @@ public class ZephyrServiceServlet extends HttpServlet {
 	private String getData(String id, String dataType) {
 		String key = getKey(id, dataType);
         PersistenceManager pm = PMF.get().getPersistenceManager();
+        Query query = pm.newQuery(DataSet.class);
+        query.setUnique(true);
+        query.setFilter("key == keyParam");
+        query.declareParameters("String keyParam");
+        
         DataSet data = null;
         try {
-            data = (DataSet) pm.getObjectById(DataSet.class, key);
-        } finally {
+    		//data = (DataSet) pm.getObjectById(DataSet.class, key);
+        	data = (DataSet) query.execute(key);
+        } 
+        finally {
             pm.close();
+        }
+        
+        if (data == null) {
+        	log.warning ("Cannot find data for request: " + key);
+        	return null;
         }
         return data.getData();
 	}
-
+	
 	private void storeData(String id, String dataType, String data) {
 		String key = getKey(id, dataType);
 		PersistenceManager pm = PMF.get().getPersistenceManager();
@@ -81,9 +98,25 @@ public class ZephyrServiceServlet extends HttpServlet {
 
 	private void deleteData(String id, String dataType) {
 		String key = getKey(id, dataType);
-		PersistenceManager pm = PMF.get().getPersistenceManager();
-		DataSet object = pm.getObjectById(DataSet.class, key);
-		pm.deletePersistent(object);
+        PersistenceManager pm = PMF.get().getPersistenceManager();
+        Query query = pm.newQuery(DataSet.class);
+        query.setUnique(true);
+        query.setFilter("key == keyParam");
+        query.declareParameters("String keyParam");
+        
+        DataSet data = null;
+        try {
+        	data = (DataSet) query.execute(key);
+            if (data == null) {
+            	log.warning ("Trying to delete non-existent data: " + key);
+            }
+            else {
+            	pm.deletePersistent(data);
+            }
+        } 
+        finally {
+            pm.close();
+        }
 	}
 
 	private String generateID() {
