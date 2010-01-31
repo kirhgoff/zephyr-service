@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" height="542" width="483">
+	<mx:Script source="ZephyrServiceTester.as"/>
+	<mx:Label text="ZephyrService testing console " width="418" height="44" fontSize="23" horizontalCenter="-12" verticalCenter="-235" color="#000000" textAlign="center" fontWeight="bold"/>
+	<mx:Label x="45" y="70" text="Server URL"/>
+	<mx:TextInput id="serverURL" x="119" y="66" width="298" text="http://localhost:8888/zephyrService"/>
+	<mx:TextInput x="118.5" y="96" width="298.5" editable="false" id="dataSetID"/>
+	<mx:TextInput x="118.5" y="126" width="298.5" id="dataType"/>
+	<mx:Label x="45" y="100" text="dataSet ID"/>
+	<mx:Label x="45" y="130" text="dataType"/>
+	<mx:Panel x="45" y="322" width="165.5" height="163" layout="absolute" title="Methods to invoke">
+		<mx:Button x="1" y="30" label="storeData" width="144.5" 
+			click="storeData(serverURL.text, dataSetID.text, dataType.text, dataToWrite.text);"/>
+		<mx:Button x="1" y="2" label="createDataSet" width="144.5" 
+			click="createDataSet(serverURL.text);" />
+		<mx:Button x="1" y="60" label="getData" width="144.5" 
+			click="getData(serverURL.text, dataSetID.text, dataType.text);" />
+		<mx:Button x="-1.5" y="90" label="deleteData" width="144.5" 
+			click="deleteData(serverURL.text, dataSetID.text, dataType.text);" />
+	</mx:Panel>
+	<mx:Panel x="45" y="170" width="187.5" height="123" layout="absolute" title="data read">
+		<mx:TextArea x="0" y="0" editable="false" height="83" width="167.5" id="dataRead"/>
+	</mx:Panel>
+	<mx:Panel x="252" y="170" width="185" height="169" layout="absolute" title="data to write">
+		<mx:TextArea x="0" y="0" height="129" width="165" id="dataToWrite"/>
+	</mx:Panel>
+	<mx:Label x="35" y="514" text="status panel" width="413" id="status"/>
+	
+</mx:Application>
